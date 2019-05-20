@@ -12,7 +12,8 @@ export default class ReposSearch extends Component {
 
   state = {
     username: 'gabrieltobi',
-    loading: true,
+    firstLoad: true,
+    refreshing: false,
     repos: []
   }
 
@@ -36,12 +37,20 @@ export default class ReposSearch extends Component {
   fetchRepos = async () => {
     this.clearRequest()
 
+    if (!this.state.firstLoad) {
+      this.setState({ refreshing: true })
+    }
+
     // Left in state to be future proof
     const request = get(`https://api.github.com/users/${this.state.username}/repos`)
     this.currentRequest = request
 
     const repos = await request
-    this.setState({ repos, loading: false })
+    this.setState({
+      repos,
+      firstLoad: false,
+      refreshing: false
+    })
   }
 
   onRepositoryPress = (repository) => {
@@ -50,7 +59,7 @@ export default class ReposSearch extends Component {
   }
 
   render() {
-    if (this.state.loading) {
+    if (this.state.firstLoad) {
       return <Loading />
     }
 
@@ -60,6 +69,8 @@ export default class ReposSearch extends Component {
           data={this.state.repos}
           renderItem={({ item }) => <Repository repository={item} onPress={this.onRepositoryPress} />}
           keyExtractor={({ id }) => `${id}`}
+          refreshing={this.state.refreshing}
+          onRefresh={this.fetchRepos}
         />
       </View>
     )
