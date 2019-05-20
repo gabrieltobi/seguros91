@@ -1,5 +1,5 @@
 # How to run
 
 - Clone repo
-- ``npm install`
+- `npm install`
 - `react-native run-android`
